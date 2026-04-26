@@ -1,7 +1,22 @@
+using Application;
+using Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
+// ─── SERVICIOS ───────────────────────────────────────────────────────────────
+
+builder.Services.AddApplication();
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// ─── PIPELINE ────────────────────────────────────────────────────────────────
 
 var app = builder.Build();
 
@@ -12,7 +27,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-app.MapGet("/", () => "Sistema Entrenamiento API");
+app.UseAuthorization();
+app.MapControllers();
 
 app.Run();
